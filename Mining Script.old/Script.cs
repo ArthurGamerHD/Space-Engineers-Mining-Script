@@ -1,7 +1,11 @@
 ﻿//Placeholder     
+
 /* 
+ 
 This script has been maded by "The Order Civilian Development Division" in partnership with the "New United Comunist Countries"  
+ 
 */
+
 //Translation Strings
 string String0 = "";
 string String1 = " Undocking";
@@ -23,7 +27,7 @@ string String16 = "To next blocks list update: ";
 string String17 = "Robots list:";
 string String18 = "    Diagnostic    ";
 string String19 = "Robot ";
-string String20 = "";
+string String20 = "Status: ";
 string String21 = "Not enough thrusterd!";
 string String22 = "Not enough gyroscopes!";
 string String23 = "No containers!";
@@ -44,8 +48,8 @@ string String37 = " Ready";
 string String38 = " Refueling";
 string String39 = "Speed: ";
 string String40 = " m/s";
-string String41 = "Distance of: ";
-string String42 = " Meters";
+string String41 = "Distance to: ";
+string String42 = "M";
 string String43 = "Containers: ";
 string String44 = "Thrusters: ";
 string String45 = "Drills: ";
@@ -59,7 +63,7 @@ string String52 = " can't find asteroid ";
 string String53 = " exhausted ore deposit ";
 string String54 = " find asteroid end ";
 string String55 = " detected an obstacle during docking ";
-string String56 = "--------------------------------------------";
+string String56 = "=__________=";
 string String57 = " control lost ";
 string String58 = " attacked! ";
 string String59 = "     Ore deposit status     ";
@@ -68,7 +72,7 @@ string String61 = " exhausted";
 string String62 = " in process";
 string String63 = " not used";
 string String64 = "***********";
-string String65 = "Robots GPS";
+string String65 = "    Robots GPS    ";
 string String66 = "Not full coordinates ";
 string String67 = "Not enough base connectors ";
 string String68 = "Ore deposit #";
@@ -84,10 +88,6 @@ string String77 = "Mothership's Drones Connectors Name:";
 string String78 = "Mothership's Cargo Group Name:";
 string String79 = "Drone's Timer for Emergency Sequence:";
 string String80 = "Mothership's Raycast Camera Name:";
-string String81 = "Address from the Screen Remote Receiver";
-string String82 = "Address from this ship, used to receive remote command";
-string String83 = "Ship GPS";
-string String84 = "----[Manual Coordinates Input]---- \nReplace this message with: \n'GPS:Ore_1:X.X:Y.Y:Z.Z:'+'@'+'GPS:Rendezvous_1:X.X:Y.Y:Z.Z:'+'@' \n \nRemove the GPS color code before use on this script (#ffffff) \n Rendezvous Point needs to be at least 5 meters from the Voxel or any Base \nYou can add multiple coordinates, example: \n\nGPS:Vein_1:XXX.X:YYY.Y:ZZZ.Z:@GPS:rendezvous_1:XXX.X:YYY.Y:ZZZ.Z:@ \nGPS:Vein_2:XXX.X:YYY.Y:ZZZ.Z:@GPS:rendezvous_2:XXX.X:YYY.Y:ZZZ.Z:@ \n\nThe coordinates will be stored in memory and removed from the display.\nA copy of the coordinates will be saved in the display's CustomData.";
 
 //Config Pre-set
 
@@ -120,8 +120,6 @@ double MineHeight = 1;
 float MiningThrust = 1;
 bool Hydrogen = false;
 bool Debug = false;
-bool RemoteScreen = false;
-long Remote_Address = 0;
 
 public void load_configuration()
 {
@@ -152,14 +150,13 @@ public void load_configuration()
     double Pre_MineHeight = 5;
     float Pre_MiningThrust = 1;
     bool Pre_Debug = false;
-    bool Pre_RemoteScreen = false;
-    long Pre_Remote_Address = 0;
 
     MyIniParseResult result;
     if (!_ini.TryParse(Me.CustomData, out result))
     {
         Echo($"CustomData error:\nLine {result}");
     }
+
 
     if (!_ini.ContainsKey("kernel", "FullName")) { _ini.Set("kernel", "FullName", Pre_FullName); _ini.SetComment("kernel", "FullName", $"{String71} Default: {Pre_FullName.ToString()}"); }
     if (!_ini.ContainsKey("kernel", "DClass")) { _ini.Set("kernel", "DClass", Pre_DClass); _ini.SetComment("kernel", "DClass", $"{String72} Default: {Pre_DClass.ToString()}"); }
@@ -188,9 +185,6 @@ public void load_configuration()
     if (!_ini.ContainsKey("kernel", "MiningThrust")) { _ini.Set("kernel", "MiningThrust", Pre_MiningThrust); _ini.SetComment("kernel", "MiningThrust", $"{String0} Default: {Pre_MiningThrust.ToString()}"); }
     if (!_ini.ContainsKey("kernel", "Hydrogen")) { _ini.Set("kernel", "Hydrogen", Pre_Hydrogen); _ini.SetComment("kernel", "Hydrogen", $"{String0} Default: {Pre_Hydrogen.ToString()}"); }
     if (!_ini.ContainsKey("kernel", "Debug")) { _ini.Set("kernel", "Debug", Pre_Debug); _ini.SetComment("kernel", "Debug", $"{String0} Default: {Pre_Debug.ToString()}"); }
-    if (!_ini.ContainsKey("network", "RemoteScreen")) { _ini.Set("network", "RemoteScreen", Pre_RemoteScreen); _ini.SetComment("network", "RemoteScreen", $"{String0} Default: {Pre_RemoteScreen.ToString()}"); }
-    if (!_ini.ContainsKey("network", "Remote_Address")) { _ini.Set("network", "Remote_Address", Pre_Remote_Address); _ini.SetComment("network", "Remote_Address", $"{String81} Default: {Pre_Remote_Address.ToString()}"); }
-    _ini.Set("network", "Local_Addresss", Me.EntityId); _ini.SetComment("network", "Local_Addresss", $"{String82}");
     Me.CustomData = _ini.ToString();
 
     EmergencyTimer = (_ini.Get("kernel", "EmergencyTimer")).ToString();
@@ -218,14 +212,11 @@ public void load_configuration()
     MineSize = double.Parse((_ini.Get("kernel", "MineSize")).ToString());
     uranium = double.Parse((_ini.Get("kernel", "uranium")).ToString());
     MiningThrust = float.Parse((_ini.Get("kernel", "MiningThrust")).ToString());
-    RemoteScreen = bool.Parse((_ini.Get("network", "RemoteScreen")).ToString());
     Hydrogen = bool.Parse((_ini.Get("kernel", "Hydrogen")).ToString());
     Debug = bool.Parse((_ini.Get("kernel", "Debug")).ToString());
-    Remote_Address = long.Parse((_ini.Get("network", "Remote_Address")).ToString());
 }
 
-// Blocks
-public IMyUnicastListener Rx;
+// Blocks    
 public IMyTimerBlock timer;
 public IMyLargeTurretBase turr;
 public IMyShipConnector conn;
@@ -240,7 +231,6 @@ public IMyCargoContainer cargo;
 public IMyCameraBlock targetcam;
 public MyInventoryItem item;
 public IMyRadioAntenna antenna;
-public MyIGCMessage data = new MyIGCMessage();
 public List<IMyCargoContainer> basecargos = new List<IMyCargoContainer>();
 public List<IMyTerminalBlock> baseconns = new List<IMyTerminalBlock>();
 public List<IMyTerminalBlock> LCDs = new List<IMyTerminalBlock>();
@@ -268,10 +258,13 @@ public List<MyInventoryItem> items = new List<MyInventoryItem>();
 public List<MyInventoryItem> items2 = new List<MyInventoryItem>();
 public List<IMyCargoContainer> cargos = new List<IMyCargoContainer>();
 public List<IMyRadioAntenna> antennas = new List<IMyRadioAntenna>();
-  
+
+//    
 // Group    
 
+
 IMyBlockGroup blocksg;
+//    
 // Check    
 public bool IsLCD(IMyTerminalBlock block)
 {
@@ -333,11 +326,7 @@ MyDetectedEntityInfo target;
 Vector3D vector = new Vector3D();
 string[] str;
 string word;
-string LastText;
 string load = "|";
-string Text;
-string Tag;
-long Source = 0;
 int cur = 0;
 int Frq = 0;
 int Cfrq = 0;
@@ -388,11 +377,6 @@ void Main(String args)
     Echo("CLEAR:<ore deposit name>");
     Echo("MESSAGESCLEAR");
     Echo("GOODBYE:<robot number>");
-    if  (Debug) {
-        Echo("Local Address:" + Me.EntityId);
-        Echo("Remote Screen Address:" + Remote_Address);
-        Echo(LastText);
-    }
 
     sb.Append(String11 + load + String12 + FullName + String13 + load + String11);
     sb.AppendLine();
@@ -407,12 +391,9 @@ void Main(String args)
     };
     sb.Append(String17);
     sb.AppendLine();
-    sb.Append(String56);
-    sb.AppendLine();
     if (Frq == 0)
     {
         load_configuration();
-        Receiver();
         basecargos.Clear();
         targetcam = GridTerminalSystem.GetBlockWithName(LockCamName) as IMyCameraBlock;
         if (targetcam != null) targetcam.EnableRaycast = true;
@@ -459,6 +440,8 @@ void Main(String args)
             diagnos.Append(String19 + DClass + " #" + (q + 1) + ":");
             diagnos.AppendLine();
             sb.Append(String19 + DClass + " #" + (q + 1) + ":");
+            sb.AppendLine();
+            sb.Append(String20);
             if (Mode != 0) sb.Append(IsMode(Mode));
 
             for (int i = blocks.Count - 1; i > -1; i--)
@@ -782,7 +765,8 @@ void Main(String args)
                 if (!Ready) { sb.Append(String38); }
             }
             sb.AppendLine();
-            sb.Append(String39 + ((float)RC.GetShipSpeed()).ToString("0.0") + String40 + " at ");
+            sb.Append(String39 + ((float)RC.GetShipSpeed()).ToString("0.0") + String40);
+            sb.AppendLine();
             sb.Append(String41 + ((float)(RC.GetPosition() - Me.GetPosition()).Length()).ToString("0.00") + String42);
             sb.AppendLine();
             if (Debug)
@@ -805,7 +789,8 @@ void Main(String args)
             }
             if (value1 != 0)
             {
-                sb.Append(" " + String47 + ((float)(value2 / value1) * 100).ToString("0") + "% ");
+                sb.Append(String47 + ((float)(value2 / value1) * 100).ToString("0") + "%");
+                sb.AppendLine();
             }
             value1 = 0;
             value2 = 0;
@@ -816,11 +801,11 @@ void Main(String args)
             }
             if (value1 != 0)
             {
-                sb.Append(" " + String48 + (float)(value1 / value2) * 100 + "% ");
+                sb.Append(String48 + (float)(value1 / value2) * 100 + "%");
+                sb.AppendLine();
             }
             if (assign[q] != -1) word = oresgps[assign[q]].Name;
             else word = String49;
-            sb.AppendLine();
             sb.Append(String50 + word);
             sb.AppendLine();
             //    
@@ -1267,7 +1252,7 @@ void Main(String args)
 
     foreach (IMyTextPanel lcd in LCDs)
     {
-        if (lcd.CustomName.Contains(" 2")) { lcd.ContentType = ContentType.TEXT_AND_IMAGE; lcd.WriteText(sb.ToString()); if (RemoteScreen) { IGC.SendUnicastMessage(Remote_Address, "2", sb.ToString()); } continue; }
+        if (lcd.CustomName.Contains(" 2")) { lcd.ContentType = ContentType.TEXT_AND_IMAGE; lcd.WriteText(sb.ToString()); continue; }
         if (lcd.CustomName.Contains(" 3"))
         {
             message.Append(String59);
@@ -1286,14 +1271,14 @@ void Main(String args)
                 message.AppendLine();
             }
             lcd.ContentType = ContentType.TEXT_AND_IMAGE;
-            lcd.WriteText(message.ToString()); if (RemoteScreen) {IGC.SendUnicastMessage(Remote_Address, "3", message.ToString());}
+            lcd.WriteText(message.ToString());
             message.Clear();
             continue;
         }
         if (lcd.CustomName.Contains(" 5"))
         {
             lcd.ContentType = ContentType.TEXT_AND_IMAGE;
-            lcd.WriteText(diagnos.ToString()); if (RemoteScreen) {IGC.SendUnicastMessage(Remote_Address, "5", diagnos.ToString());}
+            lcd.WriteText(diagnos.ToString());
             continue;
         }
         if (lcd.CustomName.Contains(" 6"))
@@ -1305,10 +1290,11 @@ void Main(String args)
                 if (RCS[i].GetPosition() != new Vector3D() && RCS[i].GetPosition() != null) lastcoords[i] = message.ToString();
                 message.Clear();
             }
-            message.Append(String83 + "\n \n" + "GPS:Mining_Station" + ":" + (Me.GetPosition().X).ToString("0.0") + ":" + (Me.GetPosition().Y).ToString("0.0") + ":" + (Me.GetPosition().Z).ToString("0.0") + ": \n \n" + String65+ "\n \n");
+            message.Append(String65);
+            message.AppendLine();
             lcd.ContentType = ContentType.TEXT_AND_IMAGE;
             for (int i = 0; i < lastcoords.Count; i++) { message.Append(lastcoords[i]); message.AppendLine(); }
-            lcd.WriteText(message.ToString()); if (RemoteScreen) {IGC.SendUnicastMessage(Remote_Address, "6", message.ToString());}
+            lcd.WriteText(message.ToString());
             message.Clear();
             continue;
         }
@@ -1319,16 +1305,15 @@ void Main(String args)
                 message.Append(messages[i]);
             }
             lcd.ContentType = ContentType.TEXT_AND_IMAGE;
-            lcd.WriteText(message.ToString()); if (RemoteScreen) { IGC.SendUnicastMessage(Remote_Address, "4", message.ToString()); }
+            lcd.WriteText(message.ToString());
             message.Clear();
         }
     }
     sb.Clear();
     foreach (IMyTextPanel lcd in LCDs)
     {
-        if (lcd.CustomName.Contains(" 1") & Frq == 0) lcd.ReadText(sb);
+        if (lcd.CustomName.Contains(" 1")) lcd.ReadText(sb);
         else continue;
-
         if (sb != null)
         {
             str = sb.ToString().Split('@');
@@ -1354,7 +1339,7 @@ void Main(String args)
                 }
             }
         }
-        lcd.WriteText(String84);
+        lcd.WriteText("----[Manual Coordinates Input]---- \nReplace this message with: \n'GPS:Ore_1:X.X:Y.Y:Z.Z:'+'@'+'GPS:Rendezvous_1:X.X:Y.Y:Z.Z:'+'@' \n \nRemove the GPS color code before use on this script (#ffffff) \n Rendezvous Point needs to be at least 5 meters from the Voxel or any Base \nYou can add multiple coordinates, example: \n\nGPS:Vein_1:XXX.X:YYY.Y:ZZZ.Z:@GPS:rendezvous_1:XXX.X:YYY.Y:ZZZ.Z:@ \nGPS:Vein_2:XXX.X:YYY.Y:ZZZ.Z:@GPS:rendezvous_2:XXX.X:YYY.Y:ZZZ.Z:@ \n\nThe coordinates will be stored in memory and removed from the display.\nA copy of the coordinates will be saved in the display's CustomData.");
     }
 
     sb.Clear();
@@ -1577,44 +1562,4 @@ void Clear()
     item = new MyInventoryItem();
     vector = new Vector3D();
     cur += 1 + MineCount;
-}
-
-
-public void Receiver()
-{
-    Rx = IGC.UnicastListener;
-    if (Rx.HasPendingMessage)
-    {
-        while (Rx.HasPendingMessage)
-        {
-            data = Rx.AcceptMessage();
-            Tag = data.Tag;
-            Source = data.Source;
-            Text = data.Data.ToString();
-            LastText = (Text + " " + Tag + " ");
-            if (Text != null)
-            {
-                str = Text.Split('#');
-                for (int i = 0; i < str.Length; i += 2)
-                {
-                    if (str[i].Length > 0)
-                    {
-                        MyWaypointInfo.TryParse(str[i], out waypoint);
-                        if (waypoint.IsEmpty() || str.Length < 1) { continue; }
-                        oresgps.Add(waypoint);
-                        MyWaypointInfo.TryParse(str[i + 2], out waypoint);
-                        if (waypoint.IsEmpty())
-                        {
-                            oresgps.RemoveAt(oresgps.Count - 1);
-                            word = String66 + DateTime.Now.Hour + ":" + DateTime.Now.Minute;
-                            if (NotContainsMess(word.ToString())) { message.Append(word); message.AppendLine(); messages.Add(message.ToString()); message.Clear(); }
-                            continue;
-                        }
-                        oreheights.Add(waypoint);
-                        names.Add(oresgps[oresgps.Count - 1].Name);
-                    }
-                }
-            }
-        }
-    }
 }

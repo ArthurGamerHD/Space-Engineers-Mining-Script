@@ -108,6 +108,7 @@ int DampRange = 1;
 int MineCount = 1;
 int Frequency = 1;
 int CargoFreq = 1;
+int StreamFreq = 5;
 int EmergencyCount = 1;
 int ScanRange = 1;
 double DampSpeed = 1;
@@ -122,6 +123,7 @@ bool Hydrogen = false;
 bool Debug = false;
 bool RemoteScreen = false;
 long Remote_Address = 0;
+int Channel_offset = 0;
 
 public void load_configuration()
 {
@@ -141,6 +143,7 @@ public void load_configuration()
     int Pre_MineCount = 4;
     int Pre_Frequency = 30;
     int Pre_CargoFreq = 5;
+    int Pre_StreamFreq = 15;
     int Pre_EmergencyCount = 5;
     int Pre_ScanRange = 5000;
     double Pre_SearchRange = -1;
@@ -154,6 +157,7 @@ public void load_configuration()
     bool Pre_Debug = false;
     bool Pre_RemoteScreen = false;
     long Pre_Remote_Address = 0;
+    int Pre_Channel_offset = 0;
 
     MyIniParseResult result;
     if (!_ini.TryParse(Me.CustomData, out result))
@@ -189,7 +193,9 @@ public void load_configuration()
     if (!_ini.ContainsKey("kernel", "Hydrogen")) { _ini.Set("kernel", "Hydrogen", Pre_Hydrogen); _ini.SetComment("kernel", "Hydrogen", $"{String0} Default: {Pre_Hydrogen.ToString()}"); }
     if (!_ini.ContainsKey("kernel", "Debug")) { _ini.Set("kernel", "Debug", Pre_Debug); _ini.SetComment("kernel", "Debug", $"{String0} Default: {Pre_Debug.ToString()}"); }
     if (!_ini.ContainsKey("network", "RemoteScreen")) { _ini.Set("network", "RemoteScreen", Pre_RemoteScreen); _ini.SetComment("network", "RemoteScreen", $"{String0} Default: {Pre_RemoteScreen.ToString()}"); }
+    if (!_ini.ContainsKey("network", "StreamFreq")) { _ini.Set("network", "StreamFreq", Pre_StreamFreq); _ini.SetComment("network", "StreamFreq", $"{String0} Default: {Pre_StreamFreq.ToString()}"); }
     if (!_ini.ContainsKey("network", "Remote_Address")) { _ini.Set("network", "Remote_Address", Pre_Remote_Address); _ini.SetComment("network", "Remote_Address", $"{String81} Default: {Pre_Remote_Address.ToString()}"); }
+    if (!_ini.ContainsKey("network", "Channel_offset")) { _ini.Set("network", "Channel_offset", Pre_Channel_offset); _ini.SetComment("network", "Channel_offset", $"{String81} Default: {Pre_Channel_offset.ToString()}"); }
     _ini.Set("network", "Local_Addresss", Me.EntityId); _ini.SetComment("network", "Local_Addresss", $"{String82}");
     Me.CustomData = _ini.ToString();
 
@@ -222,6 +228,8 @@ public void load_configuration()
     Hydrogen = bool.Parse((_ini.Get("kernel", "Hydrogen")).ToString());
     Debug = bool.Parse((_ini.Get("kernel", "Debug")).ToString());
     Remote_Address = long.Parse((_ini.Get("network", "Remote_Address")).ToString());
+    Channel_offset = int.Parse((_ini.Get("network", "Channel_offset")).ToString());
+    StreamFreq = int.Parse((_ini.Get("network", "StreamFreq")).ToString());
 }
 
 // Blocks
@@ -268,7 +276,7 @@ public List<MyInventoryItem> items = new List<MyInventoryItem>();
 public List<MyInventoryItem> items2 = new List<MyInventoryItem>();
 public List<IMyCargoContainer> cargos = new List<IMyCargoContainer>();
 public List<IMyRadioAntenna> antennas = new List<IMyRadioAntenna>();
-  
+
 // Group    
 
 IMyBlockGroup blocksg;
@@ -328,6 +336,7 @@ public string IsLoad(string load)
 StringBuilder diagnos = new StringBuilder();
 StringBuilder sb = new StringBuilder();
 StringBuilder message = new StringBuilder();
+StringBuilder drone = new StringBuilder();
 MyWaypointInfo waypoint;
 MyDetectedEntityInfo target;
 Vector3D vector = new Vector3D();
@@ -341,7 +350,8 @@ long Source = 0;
 int cur = 0;
 int Frq = 0;
 int Cfrq = 0;
-int Mode = 0; // -1 - undocking, 0 - simple, 1 - take-off, 2 - on the way to the mine, 3 - preparation for drilling, 4 - drilling, 5 - escape from the mine, 6 - on the way home, 7 - docking   
+int Sfrq = 0;
+int Mode = 0;
 double value1 = 0;
 double value2 = 0;
 double value3 = 0;
@@ -374,6 +384,7 @@ public Program()
     //    
     Frq = Frequency;
     Cfrq = CargoFreq;
+    Sfrq = StreamFreq;
 }
 void Main(String args)
 {
@@ -388,13 +399,14 @@ void Main(String args)
     Echo("CLEAR:<ore deposit name>");
     Echo("MESSAGESCLEAR");
     Echo("GOODBYE:<robot number>");
-    if  (Debug) {
+    if (Debug)
+    {
         Echo("Local Address:" + Me.EntityId);
         Echo("Remote Screen Address:" + Remote_Address);
         Echo(LastText);
     }
 
-    sb.Append(String11 + load + String12 + FullName + String13 + load + String11);
+    sb.Append(String11 + load + String12 + String13 + " #" + Channel_offset.ToString() + load + String11);
     sb.AppendLine();
     sb.Append(String14 + RCS.Count);
     sb.AppendLine();
@@ -1064,14 +1076,14 @@ void Main(String args)
 
                 foreach (IMyGyro gyro in gyros)
                 {
-                      
+
                     if (gyro.WorldMatrix.Forward != RC.WorldMatrix.Forward) continue;
                     gyro.GyroOverride = true;
                     gyro.Enabled = true;
-                    value1 = (Vector3D.Dot(gyro.WorldMatrix.Forward, Vector3D.Normalize(vector)) / vector.Length() * 100);   
-                    value2 = (Vector3D.Dot(gyro.WorldMatrix.Right, Vector3D.Normalize(vector)) / vector.Length() * 100);   
-                    value3 = (Vector3D.Dot(gyro.WorldMatrix.Up, Vector3D.Normalize(vector)) / vector.Length() * 100);   
-                    
+                    value1 = (Vector3D.Dot(gyro.WorldMatrix.Forward, Vector3D.Normalize(vector)) / vector.Length() * 100);
+                    value2 = (Vector3D.Dot(gyro.WorldMatrix.Right, Vector3D.Normalize(vector)) / vector.Length() * 100);
+                    value3 = (Vector3D.Dot(gyro.WorldMatrix.Up, Vector3D.Normalize(vector)) / vector.Length() * 100);
+
                     foreach (IMyShipDrill drill in drills) { drill.Enabled = false; }
                     /* 
                     gyro.Pitch = 0;
@@ -1137,24 +1149,24 @@ void Main(String args)
                 RC.SetAutoPilotEnabled(false);
                 Ready = true;
                 for (int i = cameras.Count - 1; i > -1; i--)
-                    {   
-                        if (cameras[i].CanScan(unitary[q]))   
-                        {   
-                            target = cameras[i].Raycast(unitary[q]);   
-                            if (target.EntityId == RC.CubeGrid.EntityId) continue;   
-                            if (target.EntityId == 0 || target.EntityId == baseconns[usedconns[q]].CubeGrid.EntityId || ((Vector3D)target.HitPosition - unitary[q]).Length() < 2) break;   
-                            else { Ready = false; break; }   
-                        }   
-                    }
-                    if (!Ready)
+                {
+                    if (cameras[i].CanScan(unitary[q]))
                     {
-                        word = String19 + DClass + "#" + (q + 1) + String55 + DateTime.Now.Hour + ":" + DateTime.Now.Minute;
-                        if (NotContainsMess(word.ToString())) { message.Append(word); message.AppendLine(); messages.Add(message.ToString()); message.Clear(); }
-                        Mode = 6;
-                        RC.CustomData = Mode.ToString();
-                        Clear();
-                        continue;
+                        target = cameras[i].Raycast(unitary[q]);
+                        if (target.EntityId == RC.CubeGrid.EntityId) continue;
+                        if (target.EntityId == 0 || target.EntityId == baseconns[usedconns[q]].CubeGrid.EntityId || ((Vector3D)target.HitPosition - unitary[q]).Length() < 2) break;
+                        else { Ready = false; break; }
                     }
+                }
+                if (!Ready)
+                {
+                    word = String19 + DClass + "#" + (q + 1) + String55 + DateTime.Now.Hour + ":" + DateTime.Now.Minute;
+                    if (NotContainsMess(word.ToString())) { message.Append(word); message.AppendLine(); messages.Add(message.ToString()); message.Clear(); }
+                    Mode = 6;
+                    RC.CustomData = Mode.ToString();
+                    Clear();
+                    continue;
+                }
                 vector = baseconns[usedconns[q]].GetPosition() + baseconns[usedconns[q]].WorldMatrix.Forward * ConnRange;
                 if ((vector - RC.GetPosition()).Length() > ConnRange + 15) { foreach (IMyThrust thrust in thrusters) thrust.ThrustOverridePercentage = 0; Mode = 6; RC.CustomData = Mode.ToString(); continue; }
                 Ready = false;
@@ -1267,60 +1279,16 @@ void Main(String args)
 
     foreach (IMyTextPanel lcd in LCDs)
     {
-        if (lcd.CustomName.Contains(" 2")) { lcd.ContentType = ContentType.TEXT_AND_IMAGE; lcd.WriteText(sb.ToString()); if (RemoteScreen) { IGC.SendUnicastMessage(Remote_Address, "2", sb.ToString()); } continue; }
-        if (lcd.CustomName.Contains(" 3"))
-        {
-            message.Append(String59);
-            message.AppendLine();
-            for (int i = 0; i < oresgps.Count; i++)
-            {
-                message.Append(String60 + "''" + names[i] + "''");
-                if (oresgps[i].IsEmpty()) message.Append(String61);
-                else
-                {
-                    if (assign.Contains(i)) message.Append(String62);
-                    else message.Append(String63);
-                }
-                message.AppendLine();
-                message.Append(String64);
-                message.AppendLine();
-            }
-            lcd.ContentType = ContentType.TEXT_AND_IMAGE;
-            lcd.WriteText(message.ToString()); if (RemoteScreen) {IGC.SendUnicastMessage(Remote_Address, "3", message.ToString());}
-            message.Clear();
-            continue;
-        }
-        if (lcd.CustomName.Contains(" 5"))
-        {
-            lcd.ContentType = ContentType.TEXT_AND_IMAGE;
-            lcd.WriteText(diagnos.ToString()); if (RemoteScreen) {IGC.SendUnicastMessage(Remote_Address, "5", diagnos.ToString());}
-            continue;
-        }
-        if (lcd.CustomName.Contains(" 6"))
-        {
-            for (int i = 0; i < RCS.Count; i++)
-            {
-                message.Append("GPS:" + DClass + "#" + (i + 1) + ":" + (RCS[i].GetPosition().X).ToString("0.0") + ":" + (RCS[i].GetPosition().Y).ToString("0.0") + ":" + (RCS[i].GetPosition().Z).ToString("0.0") + ":");
-                message.AppendLine();
-                if (RCS[i].GetPosition() != new Vector3D() && RCS[i].GetPosition() != null) lastcoords[i] = message.ToString();
-                message.Clear();
-            }
-            message.Append(String83 + "\n \n" + "GPS:Mining_Station" + ":" + (Me.GetPosition().X).ToString("0.0") + ":" + (Me.GetPosition().Y).ToString("0.0") + ":" + (Me.GetPosition().Z).ToString("0.0") + ": \n \n" + String65+ "\n \n");
-            lcd.ContentType = ContentType.TEXT_AND_IMAGE;
-            for (int i = 0; i < lastcoords.Count; i++) { message.Append(lastcoords[i]); message.AppendLine(); }
-            lcd.WriteText(message.ToString()); if (RemoteScreen) {IGC.SendUnicastMessage(Remote_Address, "6", message.ToString());}
-            message.Clear();
-            continue;
-        }
-        if (lcd.CustomName.Contains(" 4"))
-        {
-            for (int i = messages.Count - 1; i > -1; i--)
-            {
-                message.Append(messages[i]);
-            }
-            lcd.ContentType = ContentType.TEXT_AND_IMAGE;
-            lcd.WriteText(message.ToString()); if (RemoteScreen) { IGC.SendUnicastMessage(Remote_Address, "4", message.ToString()); }
-            message.Clear();
+        lcd.ContentType = ContentType.TEXT_AND_IMAGE;
+        lcd.WriteText(telemetry((lcd.CustomName)));
+    }
+    Sfrq--;
+    if (RemoteScreen && Sfrq == 0) {
+        Sfrq = StreamFreq;
+        int temp = 1;
+        while (temp < 6) {
+            temp++;
+            IGC.SendUnicastMessage(Remote_Address, (((Channel_offset * 5) + temp).ToString()), telemetry(temp.ToString()));
         }
     }
     sb.Clear();
@@ -1594,15 +1562,15 @@ public void Receiver()
             LastText = (Text + " " + Tag + " ");
             if (Text != null)
             {
-                str = Text.Split('#');
+                str = Text.Split('@');
                 for (int i = 0; i < str.Length; i += 2)
                 {
                     if (str[i].Length > 0)
                     {
-                        MyWaypointInfo.TryParse(str[i], out waypoint);
+                        MyWaypointInfo.TryParse(str[0], out waypoint);
                         if (waypoint.IsEmpty() || str.Length < 1) { continue; }
                         oresgps.Add(waypoint);
-                        MyWaypointInfo.TryParse(str[i + 2], out waypoint);
+                        MyWaypointInfo.TryParse(str[1], out waypoint);
                         if (waypoint.IsEmpty())
                         {
                             oresgps.RemoveAt(oresgps.Count - 1);
@@ -1617,4 +1585,60 @@ public void Receiver()
             }
         }
     }
+}
+public string telemetry(string ID)
+{
+    if (ID.Contains("2"))
+    {
+        return (sb.ToString());
+    }
+    if (ID.Contains("3"))
+    {
+        message.Clear();
+        message.Append(String59);
+        message.AppendLine();
+        for (int i = 0; i < oresgps.Count; i++)
+        {
+            message.Append(String60 + "''" + names[i] + "''");
+            if (oresgps[i].IsEmpty()) message.Append(String61);
+            else
+            {
+                if (assign.Contains(i)) message.Append(String62);
+                else message.Append(String63);
+            }
+            message.AppendLine();
+            message.Append(String64);
+            message.AppendLine();
+        }
+        return (message.ToString());
+    }
+    if (ID.Contains("4"))
+    {
+        message.Clear();
+        for (int i = messages.Count - 1; i > -1; i--)
+        {
+            message.Append(messages[i]);
+        }
+        return (message.ToString());
+    }
+    if (ID.Contains("5"))
+    {
+        message.Clear();
+        return (diagnos.ToString());
+    }
+    if (ID.Contains("6"))
+    {
+        message.Clear();
+        drone.Clear();
+        for (int i = 0; i < RCS.Count; i++)
+        {
+            drone.Append("GPS:" + DClass + "#" + (i + 1) + ":" + (RCS[i].GetPosition().X).ToString("0.0") + ":" + (RCS[i].GetPosition().Y).ToString("0.0") + ":" + (RCS[i].GetPosition().Z).ToString("0.0") + ":");
+            drone.AppendLine();
+            if (RCS[i].GetPosition() != new Vector3D() && RCS[i].GetPosition() != null) lastcoords[i] = message.ToString();
+        }
+        message.Append(String83 + "\n \n" + "GPS:Mining_Station" + ":" + (Me.GetPosition().X).ToString("0.0") + ":" + (Me.GetPosition().Y).ToString("0.0") + ":" + (Me.GetPosition().Z).ToString("0.0") + ": \n \n" + String65 + "\n \n"+ drone);
+        for (int i = 0; i < lastcoords.Count; i++) { message.Append(lastcoords[i]); message.AppendLine(); }
+        return (message.ToString());
+    }
+    return ("Out of Range");
 }

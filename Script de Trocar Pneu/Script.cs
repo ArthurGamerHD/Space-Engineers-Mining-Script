@@ -1,13 +1,16 @@
-﻿public Program()
+﻿List<IMyMotorSuspension> rodas = new List<IMyMotorSuspension>();
+public Program()
 {
     Runtime.UpdateFrequency = UpdateFrequency.Update1;
 }
 
 public void Main(string Teste)
 {
-    List<IMyTerminalBlock> rodas = new List<IMyTerminalBlock>();
-    GridTerminalSystem.SearchBlocksOfName("Wheel-Suspension", rodas);
-    IMyMotorBase roda = (IMyMotorSuspension)rodas[0];
-    if (roda.PendingAttachment) roda.Detach();
-    roda.Attach();
+    GridTerminalSystem.GetBlocksOfType(rodas);
+    foreach (IMyMotorSuspension roda1 in rodas)
+    {
+        IMyMotorSuspension roda = (IMyMotorSuspension)roda1;
+        if (roda.PendingAttachment) roda.Detach();
+        roda.Attach();
+    }
 }

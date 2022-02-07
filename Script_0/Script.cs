@@ -1,293 +1,9 @@
-﻿//Placeholder     
-
-/* 
- 
-This script has been maded by "The Order Civilian Development Division" in partnership with the "New United Comunist Countries"  
- 
-*/
-
-//config Area    
-
-
-
-
-// Full name of mining probe    
-string FullName = "Heavy Duty Mining Drone";
-// Class of the Ship (Short name of mining probe)  
-string DClass = "[PJL-003]";
-// Name of probe's block group    
-string GrName = "[PJL-003]";
-// Name of probes Remote Control    
-string RCN = "Remote [PJL-003]";
-// + display number; 1 - coordinates, 2 - probes status, 3 - ore deposit status, 4 - important messages, 5 - diagnostic, 6 - probes GPS    
-string LCDN = "Drone LCD";
-// Drone ID Panel   
-string IDN = "Drone ID";
-// Name of base connectors for probes    
-string ConnName = "Con Drone";
-// Name of base container group    
-string CargoName = "Cargo";
-// The name of the timers that will be started by the script and that will eventually work on the driller if the computer burns down or the computer forgets about the driller    
-string EmergencyTimer = null;
-// Name of camera, what can be used for ore deposit lock    
-string LockCamName = "SCAN";
-// The speed limit inside the Damp Field 
-int ConnRange = 20;
-// The height above the connector and the field where the speed changes to 2.5 m / s   
-int DampRange = 16;
-// Number of additional "holes" for drilling the deposit (one run - one hole, no more holes can be made = the deposit is exhausted)    
-int MineCount = 4;
-// Number of calls until the next block list update    
-int Frequency = 30;
-// Number of calls until the next work with the block inventory    
-int CargoFreq = 5;
-// Number of ticks on the timer before it is triggered after disconnecting the script from the robot    
-int EmergencyCount = 5;
-// Scanning range of base camera     
-int ScanRange = 5000;
-// Range of blocks search from remote control (if mining probe is same construct as this PB) (-1 for search only by grid)
-double DampSpeed = 0.5;
-// The height from the connector to which the drill comes out to start the docking procedure    
-double SearchRange = -1;
-// Max docking, undicking and mining speed    
-double SafetySpeed = 5;
-// Distance between "holes" in deposit    
-double MineSize = 3;
-// "holes" depth    
-double MiningDepth = 20;
-// Count of uranium in probe reactors    
-double uranium = 4;
-// Height above deposit if you got it by scanning    
-double MineHeight = 5;
-// Probe speed while mining    
-float MiningThrust = 1;
-// Is Hydrogen Powered?    
-bool Hydrogen = false;
-// Show more information?    
-bool Debug = false;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-public void set_configuration()
-{
-
-    Me.CustomData = "FullName = 'Teste pra ver se Funciona' \n" +
-                    // Class of the Ship (Short name of mining probe)  
-                    "DClass = '[Teste]' \n" +
-                    // Name of probe's block group    
-                    "string GrName = '[PJL-003]'; \n" +
-                    // Name of probes Remote Control    
-                    "string RCN = 'Remote [PJL-003]'; \n" +
-                    // + display number; 1 - coordinates, 2 - probes status, 3 - ore deposit status, 4 - important messages, 5 - diagnostic, 6 - probes GPS    
-                    "string LCDN = 'Drone LCD'; \n" +
-                    // Drone ID Panel   
-                    "string IDN = 'Drone ID'; \n" +
-                    // Name of base connectors for probes    
-                    "string ConnName = 'Con Drone'; \n" +
-                    // Name of base container group    
-                    "string CargoName = 'Cargo'; \n" +
-                    // The name of the timers that will be started by the script and that will eventually work on the driller if the computer burns down or the computer forgets about the driller    
-                    "string EmergencyTimer = 'null'; \n" +
-                    // Name of camera, what can be used for ore deposit lock    
-                    "string LockCamName = 'SCAN'; \n" +
-                    // The height from the connector to which the drill comes out to start the docking procedure    
-                    "int ConnRange = '20'; \n" +
-                    // The speed limit inside the Damp Field 
-                    "double DampSpeed = '0.5';\n" +
-                    // The height above the connector and the field where the speed changes to 2.5 m / s   
-                    "int DampRange = '16'; \n" +
-                    // Number of additional "holes" for drilling the deposit (one run - one hole, no more holes can be made = the deposit is exhausted)    
-                    "int MineCount = '4'; \n" +
-                    // Number of calls until the next block list update    
-                    "int Frequency = '30'; \n" +
-                    // Number of calls until the next work with the block inventory    
-                    "int CargoFreq = '5'; \n" +
-                    // Number of ticks on the timer before it is triggered after disconnecting the script from the robot    
-                    "int EmergencyCount = '5'; \n" +
-                    // Scanning range of base camera     
-                    "int ScanRange = '5000'; \n" +
-                    // Range of blocks search from remote control (if mining probe is same construct as this PB) (-1 for search only by grid)    
-                    "double SearchRange = '-1'; \n" +
-                    // Max docking, undicking and mining speed    
-                    "double SafetySpeed = '5'; \n" +
-                    // Distance between "holes" in deposit    
-                    "double MineSize = '3'; \n" +
-                    // "holes" depth    
-                    "double MiningDepth = '20'; \n" +
-                    // Count of uranium in probe reactors    
-                    "double uranium = '4'; \n" +
-                    // Is Hydrogen Powered?    
-                    "bool Hydrogen = 'false'; \n" +
-                    // Height above deposit if you got it by scanning    
-                    "double MineHeight = '5'; \n" +
-                    // Probe speed while mining    
-                    "float MiningThrust = '1'; \n" +
-                    // Show more information?    
-                    "bool Debug = 'false'; \n";
-}
-
-
-public bool get_configuration()
-{
-string[] config = Me.CustomData.Split('\'');
-    if (config != null)
-    {
-        FullName = config[1];
-        DClass = config[3];
-        GrName = config[5];
-        RCN = config[7];
-        LCDN = config[9];
-        IDN = config[11];
-        ConnName = config[13];
-        CargoName = config[15];
-        EmergencyTimer = config[17];
-        LockCamName = config[19];
-        ConnRange = int.Parse(config[21]);
-        DampRange = int.Parse(config[25]);
-        MineCount = int.Parse(config[27]);
-        Frequency = int.Parse(config[29]);
-        CargoFreq = int.Parse(config[31]);
-        EmergencyCount = int.Parse(config[33]);
-        ScanRange = int.Parse(config[35]);
-        DampSpeed = double.Parse(config[23]);
-        SearchRange = double.Parse(config[37]);
-        SafetySpeed = double.Parse(config[39]);
-        MineSize = double.Parse(config[41]);
-        MiningDepth = double.Parse(config[43]);
-        uranium = double.Parse(config[45]);
-        MineHeight = double.Parse(config[49]);
-        MiningThrust = float.Parse(config[51]);
-        Hydrogen = bool.Parse(config[47]);
-        Debug = bool.Parse(config[53]);
-
-        return true;
-    }
-    else
-    {
-        Echo("Getting Configuration failed!");
-        return false;
-    }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//Translation Strings    
-
+﻿//Placeholder      
+/*  
+This script has been maded by "The Order Civilian Development Division" in partnership with the "New United Comunist Countries"   
+*/ 
+//Translation Strings 
+string String0 = ""; 
 string String1 = " Undocking"; 
 string String2 = " Takes off"; 
 string String3 = " On the way to deposit"; 
@@ -297,7 +13,7 @@ string String6 = " Leave from mine";
 string String7 = " On the way to home"; 
 string String8 = " Docking"; 
 string String9 = "Program started"; 
-string String10 = "Mining IA Controller of The Order "; 
+string String10 = "The Order's Mining IA Controller™  "; 
 string String11 = "      "; 
 string String12 = " Mining robots of "; 
 string String13 = "The Order "; 
@@ -307,7 +23,7 @@ string String16 = "To next blocks list update: ";
 string String17 = "Robots list:"; 
 string String18 = "    Diagnostic    "; 
 string String19 = "Robot "; 
-string String20 = "Status: "; 
+string String20 = ""; 
 string String21 = "Not enough thrusterd!"; 
 string String22 = "Not enough gyroscopes!"; 
 string String23 = "No containers!"; 
@@ -328,8 +44,8 @@ string String37 = " Ready";
 string String38 = " Refueling"; 
 string String39 = "Speed: "; 
 string String40 = " m/s"; 
-string String41 = "Distance to: "; 
-string String42 = "M"; 
+string String41 = "Distance of: "; 
+string String42 = " Meters"; 
 string String43 = "Containers: "; 
 string String44 = "Thrusters: "; 
 string String45 = "Drills: "; 
@@ -343,7 +59,7 @@ string String52 = " can't find asteroid ";
 string String53 = " exhausted ore deposit "; 
 string String54 = " find asteroid end "; 
 string String55 = " detected an obstacle during docking "; 
-string String56 = "=__________="; 
+string String56 = "--------------------------------------------"; 
 string String57 = " control lost "; 
 string String58 = " attacked! "; 
 string String59 = "     Ore deposit status     "; 
@@ -352,71 +68,211 @@ string String61 = " exhausted";
 string String62 = " in process"; 
 string String63 = " not used"; 
 string String64 = "***********"; 
-string String65 = "    Robots GPS    "; 
+string String65 = "Robots GPS"; 
 string String66 = "Not full coordinates "; 
 string String67 = "Not enough base connectors "; 
 string String68 = "Ore deposit #"; 
 string String69 = "Goodbye, robot "; 
 string String70 = ", you will forever be a number one! "; 
+string String71 = "Drone Full Name:"; 
+string String72 = "Drone Prefix (short name):"; 
+string String73 = "Drone's Block Group:"; 
+string String74 = "Drone Remote Control Name:"; 
+string String75 = "Mothership LCD Name:"; 
+string String76 = "Drone ID Panel"; 
+string String77 = "Mothership's Drones Connectors Name:"; 
+string String78 = "Mothership's Cargo Group Name:"; 
+string String79 = "Drone's Timer for Emergency Sequence:"; 
+string String80 = "Mothership's Raycast Camera Name:"; 
+string String81 = "Address from the Screen Remote Receiver"; 
+string String82 = "Address from this ship, used to receive remote command"; 
+string String83 = "Ship GPS"; 
+string String84 = "----[Manual Coordinates Input]---- \nReplace this message with: \n'GPS:Ore_1:X.X:Y.Y:Z.Z:'+'@'+'GPS:Rendezvous_1:X.X:Y.Y:Z.Z:'+'@' \n \nRemove the GPS color code before use on this script (#ffffff) \n Rendezvous Point needs to be at least 5 meters from the Voxel or any Base \nYou can add multiple coordinates, example: \n\nGPS:Vein_1:XXX.X:YYY.Y:ZZZ.Z:@GPS:rendezvous_1:XXX.X:YYY.Y:ZZZ.Z:@ \nGPS:Vein_2:XXX.X:YYY.Y:ZZZ.Z:@GPS:rendezvous_2:XXX.X:YYY.Y:ZZZ.Z:@ \n\nThe coordinates will be stored in memory and removed from the display.\nA copy of the coordinates will be saved in the display's CustomData."; 
  
-//internal strings    
+//Config Pre-set 
  
-// Blocos    
+MyIni _ini = new MyIni(); 
  
-IMyTimerBlock timer; 
-IMyLargeTurretBase turr; 
-IMyShipConnector conn; 
-IMyGasTank tank; 
-IMyBatteryBlock bat; 
-IMyReactor react; 
-IMyThrust thruster; 
-IMyGyro gyro; 
-IMyCameraBlock cam; 
-IMyShipDrill drill; 
-IMyCargoContainer cargo; 
-IMyCameraBlock targetcam; 
-MyInventoryItem item; 
-IMyRadioAntenna antenna; 
+string FullName = ""; 
+string DClass = ""; 
+string GrName = ""; 
+string RCN = ""; 
+string LCDN = ""; 
+string IDN = ""; 
+string ConnName = ""; 
+string CargoName = ""; 
+string EmergencyTimer = ""; 
+string LockCamName = ""; 
+int ConnRange = 1; 
+int DampRange = 1; 
+int MineCount = 1; 
+int Frequency = 1; 
+int CargoFreq = 1; 
+int EmergencyCount = 1; 
+int ScanRange = 1; 
+double DampSpeed = 1; 
+double SearchRange = 1; 
+double SafetySpeed = 1; 
+double MineSize = 1; 
+double MiningDepth = 1; 
+double uranium = 1; 
+double MineHeight = 1; 
+float MiningThrust = 1; 
+bool Hydrogen = false; 
+bool Debug = false; 
+bool RemoteScreen = false; 
+long Remote_Address = 0; 
  
+public void load_configuration() 
+{ 
+    string Pre_FullName = "Mining Drone"; 
+    string Pre_DClass = "[XXX-000]"; 
+    string Pre_GrName = "[XXX-000]"; 
+    string Pre_RCN = "Remote [XXX-000]"; 
+    string Pre_LCDN = "Drones LCD"; 
+    string Pre_IDN = "Drone ID"; 
+    string Pre_ConnName = "Drones connector"; 
+    string Pre_CargoName = "Cargo"; 
+    string Pre_EmergencyTimer = "Emergency"; 
+    string Pre_LockCamName = "Scanning Camera"; 
+    int Pre_ConnRange = 20; 
+    double Pre_DampSpeed = 0.5; 
+    int Pre_DampRange = 16; 
+    int Pre_MineCount = 4; 
+    int Pre_Frequency = 30; 
+    int Pre_CargoFreq = 5; 
+    int Pre_EmergencyCount = 5; 
+    int Pre_ScanRange = 5000; 
+    double Pre_SearchRange = -1; 
+    double Pre_SafetySpeed = 5; 
+    double Pre_MineSize = 3; 
+    double Pre_MiningDepth = 20; 
+    double Pre_uranium = 4; 
+    bool Pre_Hydrogen = false; 
+    double Pre_MineHeight = 5; 
+    float Pre_MiningThrust = 1; 
+    bool Pre_Debug = false; 
+    bool Pre_RemoteScreen = false; 
+    long Pre_Remote_Address = 0; 
  
-//    
-//Lists    
+    MyIniParseResult result; 
+    if (!_ini.TryParse(Me.CustomData, out result)) 
+    { 
+        Echo($"CustomData error:\nLine {result}"); 
+    } 
  
-List<IMyCargoContainer> basecargos = new List<IMyCargoContainer>(); 
-List<IMyTerminalBlock> baseconns = new List<IMyTerminalBlock>(); 
-List<IMyTerminalBlock> LCDs = new List<IMyTerminalBlock>(); 
-List<IMyTerminalBlock> RCS = new List<IMyTerminalBlock>(); 
-List<IMyTerminalBlock> blocks = new List<IMyTerminalBlock>(); 
-List<IMyTerminalBlock> newblocks = new List<IMyTerminalBlock>(); 
-List<string> names = new List<string>(); 
-List<string> messages = new List<string>(); 
-List<string> lastcoords = new List<string>(); 
-List<int> assign = new List<int>(); 
-List<int> usedconns = new List<int>(); 
-List<int> miningnumber = new List<int>(); 
-List<Vector3D> newcoords = new List<Vector3D>(); 
-List<Vector3D> newheights = new List<Vector3D>(); 
-List<MyWaypointInfo> oresgps = new List<MyWaypointInfo>(); 
-List<MyWaypointInfo> oreheights = new List<MyWaypointInfo>(); 
-List<Vector3D> unitary = new List<Vector3D>(); 
-List<IMyTerminalBlock> conns = new List<IMyTerminalBlock>(); 
-List<IMyTerminalBlock> myblocks = new List<IMyTerminalBlock>(); 
-List<IMyThrust> thrusters = new List<IMyThrust>(); 
-List<IMyGyro> gyros = new List<IMyGyro>(); 
-List<IMyCameraBlock> cameras = new List<IMyCameraBlock>(); 
-List<IMyShipDrill> drills = new List<IMyShipDrill>(); 
-List<MyInventoryItem> items = new List<MyInventoryItem>(); 
-List<MyInventoryItem> items2 = new List<MyInventoryItem>(); 
-List<IMyCargoContainer> cargos = new List<IMyCargoContainer>(); 
-List<IMyRadioAntenna> antennas = new List<IMyRadioAntenna>(); 
+    if (!_ini.ContainsKey("kernel", "FullName")) { _ini.Set("kernel", "FullName", Pre_FullName); _ini.SetComment("kernel", "FullName", $"{String71} Default: {Pre_FullName.ToString()}"); } 
+    if (!_ini.ContainsKey("kernel", "DClass")) { _ini.Set("kernel", "DClass", Pre_DClass); _ini.SetComment("kernel", "DClass", $"{String72} Default: {Pre_DClass.ToString()}"); } 
+    if (!_ini.ContainsKey("kernel", "GrName")) { _ini.Set("kernel", "GrName", Pre_GrName); _ini.SetComment("kernel", "GrName", $"{String73} Default: {Pre_GrName.ToString()}"); } 
+    if (!_ini.ContainsKey("kernel", "RCN")) { _ini.Set("kernel", "RCN", Pre_RCN); _ini.SetComment("kernel", "RCN", $"{String74} Default: {Pre_RCN.ToString()}"); } 
+    if (!_ini.ContainsKey("kernel", "LCDN")) { _ini.Set("kernel", "LCDN", Pre_LCDN); _ini.SetComment("kernel", "LCDN", $"{String75} Default: {Pre_LCDN.ToString()}"); } 
+    if (!_ini.ContainsKey("kernel", "IDN")) { _ini.Set("kernel", "IDN", Pre_IDN); _ini.SetComment("kernel", "IDN", $"{String76} Default: {Pre_IDN.ToString()}"); } 
+    if (!_ini.ContainsKey("kernel", "ConnName")) { _ini.Set("kernel", "ConnName", Pre_ConnName); _ini.SetComment("kernel", "ConnName", $"{String77} Default: {Pre_ConnName.ToString()}"); } 
+    if (!_ini.ContainsKey("kernel", "CargoName")) { _ini.Set("kernel", "CargoName", Pre_CargoName); _ini.SetComment("kernel", "CargoName", $"{String78} Default: {Pre_CargoName.ToString()}"); } 
+    if (!_ini.ContainsKey("kernel", "EmergencyTimer")) { _ini.Set("kernel", "EmergencyTimer", Pre_EmergencyTimer); _ini.SetComment("kernel", "EmergencyTimer", $"{String79} Default: {Pre_EmergencyTimer.ToString()}"); } 
+    if (!_ini.ContainsKey("kernel", "LockCamName")) { _ini.Set("kernel", "LockCamName", Pre_LockCamName); _ini.SetComment("kernel", "LockCamName", $"{String80} Default: {Pre_LockCamName.ToString()}"); } 
+    if (!_ini.ContainsKey("kernel", "ConnRange")) { _ini.Set("kernel", "ConnRange", Pre_ConnRange); _ini.SetComment("kernel", "ConnRange", $"{String0} Default: {Pre_ConnRange.ToString()}"); } 
+    if (!_ini.ContainsKey("kernel", "DampRange")) { _ini.Set("kernel", "DampRange", Pre_DampRange); _ini.SetComment("kernel", "DampRange", $"{String0} Default: {Pre_DampRange.ToString()}"); } 
+    if (!_ini.ContainsKey("kernel", "MineCount")) { _ini.Set("kernel", "MineCount", Pre_MineCount); _ini.SetComment("kernel", "MineCount", $"{String0} Default: {Pre_MineCount.ToString()}"); } 
+    if (!_ini.ContainsKey("kernel", "Frequency")) { _ini.Set("kernel", "Frequency", Pre_Frequency); _ini.SetComment("kernel", "Frequency", $"{String0} Default: {Pre_Frequency.ToString()}"); } 
+    if (!_ini.ContainsKey("kernel", "CargoFreq")) { _ini.Set("kernel", "CargoFreq", Pre_CargoFreq); _ini.SetComment("kernel", "CargoFreq", $"{String0} Default: {Pre_CargoFreq.ToString()}"); } 
+    if (!_ini.ContainsKey("kernel", "EmergencyCount")) { _ini.Set("kernel", "EmergencyCount", Pre_EmergencyCount); _ini.SetComment("kernel", "EmergencyCount", $"{String0} Default: {Pre_EmergencyCount.ToString()}"); } 
+    if (!_ini.ContainsKey("kernel", "ScanRange")) { _ini.Set("kernel", "ScanRange", Pre_ScanRange); _ini.SetComment("kernel", "ScanRange", $"{String0} Default: {Pre_ScanRange.ToString()}"); } 
+    if (!_ini.ContainsKey("kernel", "DampSpeed")) { _ini.Set("kernel", "DampSpeed", Pre_DampSpeed); _ini.SetComment("kernel", "DampSpeed", $"{String0} Default: {Pre_DampSpeed.ToString()}"); } 
+    if (!_ini.ContainsKey("kernel", "SearchRange")) { _ini.Set("kernel", "SearchRange", Pre_SearchRange); _ini.SetComment("kernel", "SearchRange", $"{String0} Default: {Pre_SearchRange.ToString()}"); } 
+    if (!_ini.ContainsKey("kernel", "SafetySpeed")) { _ini.Set("kernel", "SafetySpeed", Pre_SafetySpeed); _ini.SetComment("kernel", "SafetySpeed", $"{String0} Default: {Pre_SafetySpeed.ToString()}"); } 
+    if (!_ini.ContainsKey("kernel", "MineSize")) { _ini.Set("kernel", "MineSize", Pre_MineSize); _ini.SetComment("kernel", "MineSize", $"{String0} Default: {Pre_MineSize.ToString()}"); } 
+    if (!_ini.ContainsKey("kernel", "MiningDepth")) { _ini.Set("kernel", "MiningDepth", Pre_MiningDepth); _ini.SetComment("kernel", "MiningDepth", $"{String0} Default: {Pre_MiningDepth.ToString()}"); } 
+    if (!_ini.ContainsKey("kernel", "uranium")) { _ini.Set("kernel", "uranium", Pre_uranium); _ini.SetComment("kernel", "uranium", $"{String0} Default: {Pre_uranium.ToString()}"); } 
+    if (!_ini.ContainsKey("kernel", "MineHeight")) { _ini.Set("kernel", "MineHeight", Pre_MineHeight); _ini.SetComment("kernel", "MineHeight", $"{String0} Default: {Pre_MineHeight.ToString()}"); } 
+    if (!_ini.ContainsKey("kernel", "MiningThrust")) { _ini.Set("kernel", "MiningThrust", Pre_MiningThrust); _ini.SetComment("kernel", "MiningThrust", $"{String0} Default: {Pre_MiningThrust.ToString()}"); } 
+    if (!_ini.ContainsKey("kernel", "Hydrogen")) { _ini.Set("kernel", "Hydrogen", Pre_Hydrogen); _ini.SetComment("kernel", "Hydrogen", $"{String0} Default: {Pre_Hydrogen.ToString()}"); } 
+    if (!_ini.ContainsKey("kernel", "Debug")) { _ini.Set("kernel", "Debug", Pre_Debug); _ini.SetComment("kernel", "Debug", $"{String0} Default: {Pre_Debug.ToString()}"); } 
+    if (!_ini.ContainsKey("network", "RemoteScreen")) { _ini.Set("network", "RemoteScreen", Pre_RemoteScreen); _ini.SetComment("network", "RemoteScreen", $"{String0} Default: {Pre_RemoteScreen.ToString()}"); } 
+    if (!_ini.ContainsKey("network", "Remote_Address")) { _ini.Set("network", "Remote_Address", Pre_Remote_Address); _ini.SetComment("network", "Remote_Address", $"{String81} Default: {Pre_Remote_Address.ToString()}"); } 
+    _ini.Set("network", "Local_Addresss", Me.EntityId); _ini.SetComment("network", "Local_Addresss", $"{String82}"); 
+    Me.CustomData = _ini.ToString(); 
  
-//    
-// Group    
+    EmergencyTimer = (_ini.Get("kernel", "EmergencyTimer")).ToString(); 
+    LockCamName = (_ini.Get("kernel", "LockCamName")).ToString(); 
+    CargoName = (_ini.Get("kernel", "CargoName")).ToString(); 
+    FullName = (_ini.Get("kernel", "FullName")).ToString(); 
+    ConnName = (_ini.Get("kernel", "ConnName")).ToString(); 
+    DClass = (_ini.Get("kernel", "DClass")).ToString(); 
+    GrName = (_ini.Get("kernel", "GrName")).ToString(); 
+    LCDN = (_ini.Get("kernel", "LCDN")).ToString(); 
+    RCN = (_ini.Get("kernel", "RCN")).ToString(); 
+    IDN = (_ini.Get("kernel", "IDN")).ToString(); 
+    EmergencyCount = int.Parse((_ini.Get("kernel", "EmergencyCount")).ToString()); 
+    ConnRange = int.Parse((_ini.Get("kernel", "ConnRange")).ToString()); 
+    DampRange = int.Parse((_ini.Get("kernel", "DampRange")).ToString()); 
+    MineCount = int.Parse((_ini.Get("kernel", "MineCount")).ToString()); 
+    Frequency = int.Parse((_ini.Get("kernel", "Frequency")).ToString()); 
+    CargoFreq = int.Parse((_ini.Get("kernel", "CargoFreq")).ToString()); 
+    ScanRange = int.Parse((_ini.Get("kernel", "ScanRange")).ToString()); 
+    SearchRange = double.Parse((_ini.Get("kernel", "SearchRange")).ToString()); 
+    SafetySpeed = double.Parse((_ini.Get("kernel", "SafetySpeed")).ToString()); 
+    MiningDepth = double.Parse((_ini.Get("kernel", "MiningDepth")).ToString()); 
+    MineHeight = double.Parse((_ini.Get("kernel", "MineHeight")).ToString()); 
+    DampSpeed = double.Parse((_ini.Get("kernel", "DampSpeed")).ToString()); 
+    MineSize = double.Parse((_ini.Get("kernel", "MineSize")).ToString()); 
+    uranium = double.Parse((_ini.Get("kernel", "uranium")).ToString()); 
+    MiningThrust = float.Parse((_ini.Get("kernel", "MiningThrust")).ToString()); 
+    RemoteScreen = bool.Parse((_ini.Get("network", "RemoteScreen")).ToString()); 
+    Hydrogen = bool.Parse((_ini.Get("kernel", "Hydrogen")).ToString()); 
+    Debug = bool.Parse((_ini.Get("kernel", "Debug")).ToString()); 
+    Remote_Address = long.Parse((_ini.Get("network", "Remote_Address")).ToString()); 
+} 
  
+// Blocks 
+public IMyUnicastListener Rx; 
+public IMyTimerBlock timer; 
+public IMyLargeTurretBase turr; 
+public IMyShipConnector conn; 
+public IMyGasTank tank; 
+public IMyBatteryBlock bat; 
+public IMyReactor react; 
+public IMyThrust thruster; 
+public IMyGyro gyro; 
+public IMyCameraBlock cam; 
+public IMyShipDrill drill; 
+public IMyCargoContainer cargo; 
+public IMyCameraBlock targetcam; 
+public MyInventoryItem item; 
+public IMyRadioAntenna antenna; 
+public MyIGCMessage data = new MyIGCMessage(); 
+public List<IMyCargoContainer> basecargos = new List<IMyCargoContainer>(); 
+public List<IMyTerminalBlock> baseconns = new List<IMyTerminalBlock>(); 
+public List<IMyTerminalBlock> LCDs = new List<IMyTerminalBlock>(); 
+public List<IMyTerminalBlock> RCS = new List<IMyTerminalBlock>(); 
+public List<IMyTerminalBlock> blocks = new List<IMyTerminalBlock>(); 
+public List<IMyTerminalBlock> newblocks = new List<IMyTerminalBlock>(); 
+public List<string> names = new List<string>(); 
+public List<string> messages = new List<string>(); 
+public List<string> lastcoords = new List<string>(); 
+public List<int> assign = new List<int>(); 
+public List<int> usedconns = new List<int>(); 
+public List<int> miningnumber = new List<int>(); 
+public List<Vector3D> newcoords = new List<Vector3D>(); 
+public List<Vector3D> newheights = new List<Vector3D>(); 
+public List<MyWaypointInfo> oresgps = new List<MyWaypointInfo>(); 
+public List<MyWaypointInfo> oreheights = new List<MyWaypointInfo>(); 
+public List<Vector3D> unitary = new List<Vector3D>(); 
+public List<IMyTerminalBlock> conns = new List<IMyTerminalBlock>(); 
+public List<IMyTerminalBlock> myblocks = new List<IMyTerminalBlock>(); 
+public List<IMyThrust> thrusters = new List<IMyThrust>(); 
+public List<IMyGyro> gyros = new List<IMyGyro>(); 
+public List<IMyCameraBlock> cameras = new List<IMyCameraBlock>(); 
+public List<IMyShipDrill> drills = new List<IMyShipDrill>(); 
+public List<MyInventoryItem> items = new List<MyInventoryItem>(); 
+public List<MyInventoryItem> items2 = new List<MyInventoryItem>(); 
+public List<IMyCargoContainer> cargos = new List<IMyCargoContainer>(); 
+public List<IMyRadioAntenna> antennas = new List<IMyRadioAntenna>(); 
+   
+// Group     
  
 IMyBlockGroup blocksg; 
-//    
-// Check    
+// Check     
 public bool IsLCD(IMyTerminalBlock block) 
 { 
     IMyTextPanel block1; 
@@ -477,17 +333,22 @@ MyDetectedEntityInfo target;
 Vector3D vector = new Vector3D(); 
 string[] str; 
 string word; 
+string LastText; 
 string load = "|"; 
+string Text; 
+string Tag; 
+long Source = 0; 
 int cur = 0; 
 int Frq = 0; 
 int Cfrq = 0; 
-int Mode = 0; // -1 - undocking, 0 - simple, 1 - take-off, 2 - on the way to the mine, 3 - preparation for drilling, 4 - drilling, 5 - escape from the mine, 6 - on the way home, 7 - docking   
+int Mode = 0; // -1 - undocking, 0 - simple, 1 - take-off, 2 - on the way to the mine, 3 - preparation for drilling, 4 - drilling, 5 - escape from the mine, 6 - on the way home, 7 - docking    
 double value1 = 0; 
 double value2 = 0; 
 double value3 = 0; 
 bool Ready = false; 
-Program() 
+public Program() 
 { 
+    load_configuration(); 
     Runtime.UpdateFrequency |= UpdateFrequency.Update10; 
     word = String9 + DateTime.Now.Hour + ":" + DateTime.Now.Minute; 
     message.Append(word); message.AppendLine(); messages.Add(message.ToString()); message.Clear(); 
@@ -499,7 +360,7 @@ Program()
     GridTerminalSystem.SearchBlocksOfName(LCDN, LCDs, IsLCD); 
     GridTerminalSystem.SearchBlocksOfName(RCN, RCS, IsRC); 
     GridTerminalSystem.SearchBlocksOfName(ConnName, baseconns, IsConn); 
-    //    
+    //     
     for (int i = 0; i < RCS.Count; i++) 
     { 
         unitary.Add(new Vector3D()); 
@@ -510,15 +371,13 @@ Program()
         lastcoords.Add("wow"); 
         for (int i1 = MineCount + 1; i1 > 0; i1--) { newcoords.Add(new Vector3D()); newheights.Add(new Vector3D()); } 
     } 
-    //    
+    //     
     Frq = Frequency; 
     Cfrq = CargoFreq; 
 } 
-void Main(String args)
-{
-    set_configuration();
-    get_configuration();
-    Frq--;
+void Main(String args) 
+{ 
+    Frq--; 
     Cfrq--; 
     load = IsLoad(load); 
     Echo(String10 + load); 
@@ -529,10 +388,16 @@ void Main(String args)
     Echo("CLEAR:<ore deposit name>"); 
     Echo("MESSAGESCLEAR"); 
     Echo("GOODBYE:<robot number>"); 
+    if  (Debug) { 
+        Echo("Local Address:" + Me.EntityId); 
+        Echo("Remote Screen Address:" + Remote_Address); 
+        Echo(LastText); 
+    } 
+ 
     sb.Append(String11 + load + String12 + FullName + String13 + load + String11); 
     sb.AppendLine(); 
     sb.Append(String14 + RCS.Count); 
-    sb.AppendLine();
+    sb.AppendLine(); 
     if (Debug) 
     { 
         sb.Append(String15 + Cfrq); 
@@ -542,8 +407,12 @@ void Main(String args)
     }; 
     sb.Append(String17); 
     sb.AppendLine(); 
+    sb.Append(String56); 
+    sb.AppendLine(); 
     if (Frq == 0) 
     { 
+        load_configuration(); 
+        Receiver(); 
         basecargos.Clear(); 
         targetcam = GridTerminalSystem.GetBlockWithName(LockCamName) as IMyCameraBlock; 
         if (targetcam != null) targetcam.EnableRaycast = true; 
@@ -572,7 +441,7 @@ void Main(String args)
         } 
         newblocks.Clear(); 
         GridTerminalSystem.SearchBlocksOfName(ConnName, newblocks, IsConn); 
-        for (int i = newblocks.Count - 1; i > -1; i--) { if (!baseconns.Contains(newblocks[i])) baseconns.Add(newblocks[i]); } // Чтобы избежать конца света путем изменения распорядка коннекторов по причине их выхода из строя   
+        for (int i = newblocks.Count - 1; i > -1; i--) { if (!baseconns.Contains(newblocks[i])) baseconns.Add(newblocks[i]); } 
         newblocks.Clear(); 
         for (int i = blocks.Count - 1; i > -1; i--) { if (!blocks[i].IsFunctional) blocks.RemoveAt(i); } 
         Frq = Frequency; 
@@ -590,8 +459,6 @@ void Main(String args)
             diagnos.Append(String19 + DClass + " #" + (q + 1) + ":"); 
             diagnos.AppendLine(); 
             sb.Append(String19 + DClass + " #" + (q + 1) + ":"); 
-            sb.AppendLine(); 
-            sb.Append(String20); 
             if (Mode != 0) sb.Append(IsMode(Mode)); 
  
             for (int i = blocks.Count - 1; i > -1; i--) 
@@ -721,7 +588,7 @@ void Main(String args)
             diagnos.AppendLine(); 
             if (value1 > 0 && Mode == 0) { Clear(); continue; } 
  
-            //Undocking Mode   
+            //Undocking Mode    
  
             if (Mode == -1) 
             { 
@@ -742,7 +609,7 @@ void Main(String args)
                 } 
                 if (Ready) Mode = 1; 
             } 
-            //    
+            //     
             if (Mode == 0) 
             { 
                 usedconns[q] = -1; 
@@ -915,8 +782,7 @@ void Main(String args)
                 if (!Ready) { sb.Append(String38); } 
             } 
             sb.AppendLine(); 
-            sb.Append(String39 + ((float)RC.GetShipSpeed()).ToString("0.0") + String40); 
-            sb.AppendLine(); 
+            sb.Append(String39 + ((float)RC.GetShipSpeed()).ToString("0.0") + String40 + " at "); 
             sb.Append(String41 + ((float)(RC.GetPosition() - Me.GetPosition()).Length()).ToString("0.00") + String42); 
             sb.AppendLine(); 
             if (Debug) 
@@ -939,8 +805,7 @@ void Main(String args)
             } 
             if (value1 != 0) 
             { 
-                sb.Append(String47 + (float)(value2 / value1) * 100 + "%"); 
-                sb.AppendLine(); 
+                sb.Append(" " + String47 + ((float)(value2 / value1) * 100).ToString("0") + "% "); 
             } 
             value1 = 0; 
             value2 = 0; 
@@ -951,14 +816,14 @@ void Main(String args)
             } 
             if (value1 != 0) 
             { 
-                sb.Append(String48 + (float)(value1 / value2) * 100 + "%"); 
-                sb.AppendLine(); 
+                sb.Append(" " + String48 + (float)(value1 / value2) * 100 + "% "); 
             } 
             if (assign[q] != -1) word = oresgps[assign[q]].Name; 
             else word = String49; 
+            sb.AppendLine(); 
             sb.Append(String50 + word); 
             sb.AppendLine(); 
-            //    
+            //     
             if (Mode == 1) 
             { 
                 foreach (IMyRadioAntenna antenna in antennas) 
@@ -973,7 +838,7 @@ void Main(String args)
                 foreach (IMyThrust thr in thrusters) { thr.Enabled = true; if (thr.WorldMatrix.Forward == RC.WorldMatrix.Backward) thr.ThrustOverridePercentage = (float)(1 - RC.GetShipSpeed() / SafetySpeed); } 
                 if ((vector - RC.GetPosition()).Length() >= ConnRange) Mode = 2; 
             } 
-            //    
+            //     
             if (Mode == 2) 
             { 
                 foreach (IMyThrust thr in thrusters) { thr.Enabled = true; thr.ThrustOverridePercentage = 0; } 
@@ -983,7 +848,7 @@ void Main(String args)
                 RC.SetCollisionAvoidance(true); 
                 if ((RC.GetPosition() - newheights[cur + miningnumber[q]]).Length() < 25) Mode = 3; 
             } 
-            //    
+            //     
             if (Mode == 3) 
             { 
                 Ready = true; 
@@ -1088,12 +953,12 @@ void Main(String args)
                         if (i > MineCount) break; 
                         value1 += MineSize; 
                     } 
-                    unitary[q] = newcoords[cur + miningnumber[q]] + Vector3D.Normalize(newcoords[cur + miningnumber[q]] - RC.GetPosition()) * (MiningDepth * 2); //RC.GetPosition() + RC.WorldMatrix.Forward * (MiningDepth * 2 + (newcoords[cur + miningnumber[q]] - newheights[cur + miningnumber[q]]).Length());   
+                    unitary[q] = newcoords[cur + miningnumber[q]] + Vector3D.Normalize(newcoords[cur + miningnumber[q]] - RC.GetPosition()) * (MiningDepth * 2); //RC.GetPosition() + RC.WorldMatrix.Forward * (MiningDepth * 2 + (newcoords[cur + miningnumber[q]] - newheights[cur + miningnumber[q]]).Length());    
                     Mode = 4; 
                 } 
             } 
  
-            // Mining Operation    
+            // Mining Operation     
  
             if (Mode == 4) 
             { 
@@ -1191,7 +1056,7 @@ void Main(String args)
             } 
  
  
-            //Leaving Mining Site    
+            //Leaving Mining Site     
  
             if (Mode == 5) 
             { 
@@ -1199,23 +1064,25 @@ void Main(String args)
  
                 foreach (IMyGyro gyro in gyros) 
                 { 
-                    /*   
-                    if (gyro.WorldMatrix.Forward != RC.WorldMatrix.Forward) continue;   
-                    value1 = (Vector3D.Dot(gyro.WorldMatrix.Forward, Vector3D.Normalize(vector)) / vector.Length() * 100);   
-                    value2 = (Vector3D.Dot(gyro.WorldMatrix.Right, Vector3D.Normalize(vector)) / vector.Length() * 100);   
-                    value3 = (Vector3D.Dot(gyro.WorldMatrix.Up, Vector3D.Normalize(vector)) / vector.Length() * 100);   
-                    */ 
-                    foreach (IMyShipDrill drill in drills) { drill.Enabled = false; } 
+                       
+                    if (gyro.WorldMatrix.Forward != RC.WorldMatrix.Forward) continue; 
                     gyro.GyroOverride = true; 
                     gyro.Enabled = true; 
+                    value1 = (Vector3D.Dot(gyro.WorldMatrix.Forward, Vector3D.Normalize(vector)) / vector.Length() * 100);    
+                    value2 = (Vector3D.Dot(gyro.WorldMatrix.Right, Vector3D.Normalize(vector)) / vector.Length() * 100);    
+                    value3 = (Vector3D.Dot(gyro.WorldMatrix.Up, Vector3D.Normalize(vector)) / vector.Length() * 100);    
+                     
+                    foreach (IMyShipDrill drill in drills) { drill.Enabled = false; } 
+                    /*  
                     gyro.Pitch = 0; 
                     gyro.Yaw = 0; 
+                    */ 
                 } 
  
                 foreach (IMyThrust thrust in thrusters) 
                 { 
                     thrust.Enabled = true; 
-                    if (thrust.WorldMatrix.Forward != RC.WorldMatrix.Backward) thrust.ThrustOverridePercentage = 0; //(float)-Vector3D.Dot(thrust.WorldMatrix.Forward, Vector3D.Normalize(Vector3D.Reject(thrust.GetPosition() + thrust.WorldMatrix.Forward, Vector3D.Normalize(vector - RC.GetShipVelocities().LinearVelocity)))) / 35;   
+                    if (thrust.WorldMatrix.Forward != RC.WorldMatrix.Backward) thrust.ThrustOverridePercentage = 0; //(float)-Vector3D.Dot(thrust.WorldMatrix.Forward, Vector3D.Normalize(Vector3D.Reject(thrust.GetPosition() + thrust.WorldMatrix.Forward, Vector3D.Normalize(vector - RC.GetShipVelocities().LinearVelocity)))) / 35;    
                     if (thrust.WorldMatrix.Forward == RC.WorldMatrix.Forward) thrust.ThrustOverridePercentage = (float)(1 - RC.GetShipSpeed() / SafetySpeed); 
                 } 
                 if ((unitary[q] - RC.GetPosition()).Length() > MiningDepth * 2 + (newcoords[cur + miningnumber[q]] - newheights[cur + miningnumber[q]]).Length()) 
@@ -1249,7 +1116,7 @@ void Main(String args)
                 } 
             } 
  
-            //Returning Home    
+            //Returning Home     
  
  
             if (Mode == 6) 
@@ -1263,22 +1130,22 @@ void Main(String args)
                 if ((RC.GetPosition() - waypoint.Coords).Length() < 3) 
                 { Mode = 7; } 
             } 
-            //    
+            //     
             if (Mode == 7) 
             { 
                 unitary[q] = baseconns[usedconns[q]].GetPosition(); 
                 RC.SetAutoPilotEnabled(false); 
                 Ready = true; 
                 for (int i = cameras.Count - 1; i > -1; i--) 
-                    /*{   
-                        if (cameras[i].CanScan(unitary[q]))   
-                        {   
-                            target = cameras[i].Raycast(unitary[q]);   
-                            if (target.EntityId == RC.CubeGrid.EntityId) continue;   
-                            if (target.EntityId == 0 || target.EntityId == baseconns[usedconns[q]].CubeGrid.EntityId || ((Vector3D)target.HitPosition - unitary[q]).Length() < 2) break;   
-                            else { Ready = false; break; }   
-                        }   
-                    }*/ 
+                    {    
+                        if (cameras[i].CanScan(unitary[q]))    
+                        {    
+                            target = cameras[i].Raycast(unitary[q]);    
+                            if (target.EntityId == RC.CubeGrid.EntityId) continue;    
+                            if (target.EntityId == 0 || target.EntityId == baseconns[usedconns[q]].CubeGrid.EntityId || ((Vector3D)target.HitPosition - unitary[q]).Length() < 2) break;    
+                            else { Ready = false; break; }    
+                        }    
+                    } 
                     if (!Ready) 
                     { 
                         word = String19 + DClass + "#" + (q + 1) + String55 + DateTime.Now.Hour + ":" + DateTime.Now.Minute; 
@@ -1353,7 +1220,7 @@ void Main(String args)
                 } 
  
             } 
-            //    
+            //     
             sb.Append(String56); 
             sb.AppendLine(); 
         } 
@@ -1400,7 +1267,7 @@ void Main(String args)
  
     foreach (IMyTextPanel lcd in LCDs) 
     { 
-        if (lcd.CustomName.Contains(" 2")) { lcd.ContentType = ContentType.TEXT_AND_IMAGE; lcd.WriteText(sb.ToString()); continue; } 
+        if (lcd.CustomName.Contains(" 2")) { lcd.ContentType = ContentType.TEXT_AND_IMAGE; lcd.WriteText(sb.ToString()); if (RemoteScreen) { IGC.SendUnicastMessage(Remote_Address, "2", sb.ToString()); } continue; } 
         if (lcd.CustomName.Contains(" 3")) 
         { 
             message.Append(String59); 
@@ -1419,14 +1286,14 @@ void Main(String args)
                 message.AppendLine(); 
             } 
             lcd.ContentType = ContentType.TEXT_AND_IMAGE; 
-            lcd.WriteText(message.ToString()); 
+            lcd.WriteText(message.ToString()); if (RemoteScreen) {IGC.SendUnicastMessage(Remote_Address, "3", message.ToString());} 
             message.Clear(); 
             continue; 
         } 
         if (lcd.CustomName.Contains(" 5")) 
         { 
             lcd.ContentType = ContentType.TEXT_AND_IMAGE; 
-            lcd.WriteText(diagnos.ToString()); 
+            lcd.WriteText(diagnos.ToString()); if (RemoteScreen) {IGC.SendUnicastMessage(Remote_Address, "5", diagnos.ToString());} 
             continue; 
         } 
         if (lcd.CustomName.Contains(" 6")) 
@@ -1438,11 +1305,10 @@ void Main(String args)
                 if (RCS[i].GetPosition() != new Vector3D() && RCS[i].GetPosition() != null) lastcoords[i] = message.ToString(); 
                 message.Clear(); 
             } 
-            message.Append(String65); 
-            message.AppendLine(); 
+            message.Append(String83 + "\n \n" + "GPS:Mining_Station" + ":" + (Me.GetPosition().X).ToString("0.0") + ":" + (Me.GetPosition().Y).ToString("0.0") + ":" + (Me.GetPosition().Z).ToString("0.0") + ": \n \n" + String65+ "\n \n"); 
             lcd.ContentType = ContentType.TEXT_AND_IMAGE; 
             for (int i = 0; i < lastcoords.Count; i++) { message.Append(lastcoords[i]); message.AppendLine(); } 
-            lcd.WriteText(message.ToString()); 
+            lcd.WriteText(message.ToString()); if (RemoteScreen) {IGC.SendUnicastMessage(Remote_Address, "6", message.ToString());} 
             message.Clear(); 
             continue; 
         } 
@@ -1453,15 +1319,16 @@ void Main(String args)
                 message.Append(messages[i]); 
             } 
             lcd.ContentType = ContentType.TEXT_AND_IMAGE; 
-            lcd.WriteText(message.ToString()); 
+            lcd.WriteText(message.ToString()); if (RemoteScreen) { IGC.SendUnicastMessage(Remote_Address, "4", message.ToString()); } 
             message.Clear(); 
         } 
     } 
     sb.Clear(); 
     foreach (IMyTextPanel lcd in LCDs) 
     { 
-        if (lcd.CustomName.Contains(" 1")) lcd.ReadText(sb); 
+        if (lcd.CustomName.Contains(" 1") & Frq == 0) lcd.ReadText(sb); 
         else continue; 
+ 
         if (sb != null) 
         { 
             str = sb.ToString().Split('@'); 
@@ -1487,7 +1354,7 @@ void Main(String args)
                 } 
             } 
         } 
-        lcd.WriteText("----[Manual Coordinates Input]---- \nReplace this message with: \n'GPS:Ore_1:X.X:Y.Y:Z.Z:'+'@'+'GPS:Rendezvous_1:X.X:Y.Y:Z.Z:'+'@' \n \nRemove the GPS color code before use on this script (#ffffff) \n Rendezvous Point needs to be at least 5 meters from the Voxel or any Base \nYou can add multiple coordinates, example: \n\nGPS:Vein_1:XXX.X:YYY.Y:ZZZ.Z:@GPS:rendezvous_1:XXX.X:YYY.Y:ZZZ.Z:@ \nGPS:Vein_2:XXX.X:YYY.Y:ZZZ.Z:@GPS:rendezvous_2:XXX.X:YYY.Y:ZZZ.Z:@ \n\nThe coordinates will be stored in memory and removed from the display.\nA copy of the coordinates will be saved in the display's CustomData."); 
+        lcd.WriteText(String84); 
     } 
  
     sb.Clear(); 
@@ -1710,4 +1577,44 @@ void Clear()
     item = new MyInventoryItem(); 
     vector = new Vector3D(); 
     cur += 1 + MineCount; 
+} 
+ 
+ 
+public void Receiver() 
+{ 
+    Rx = IGC.UnicastListener; 
+    if (Rx.HasPendingMessage) 
+    { 
+        while (Rx.HasPendingMessage) 
+        { 
+            data = Rx.AcceptMessage(); 
+            Tag = data.Tag; 
+            Source = data.Source; 
+            Text = data.Data.ToString(); 
+            LastText = (Text + " " + Tag + " "); 
+            if (Text != null) 
+            { 
+                str = Text.Split('#'); 
+                for (int i = 0; i < str.Length; i += 2) 
+                { 
+                    if (str[i].Length > 0) 
+                    { 
+                        MyWaypointInfo.TryParse(str[i], out waypoint); 
+                        if (waypoint.IsEmpty() || str.Length < 1) { continue; } 
+                        oresgps.Add(waypoint); 
+                        MyWaypointInfo.TryParse(str[i + 2], out waypoint); 
+                        if (waypoint.IsEmpty()) 
+                        { 
+                            oresgps.RemoveAt(oresgps.Count - 1); 
+                            word = String66 + DateTime.Now.Hour + ":" + DateTime.Now.Minute; 
+                            if (NotContainsMess(word.ToString())) { message.Append(word); message.AppendLine(); messages.Add(message.ToString()); message.Clear(); } 
+                            continue; 
+                        } 
+                        oreheights.Add(waypoint); 
+                        names.Add(oresgps[oresgps.Count - 1].Name); 
+                    } 
+                } 
+            } 
+        } 
+    } 
 }
